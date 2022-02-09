@@ -4,9 +4,12 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost/pythonreactdb'
-mongo = PyMongo(app) # mongo es la conexión a la BD
+mongo = PyMongo(app)  # mongo es la conexión a la BD
+
+CORS(app)
 
 db = mongo.db.users
+
 
 @app.route('/users', methods=['POST'])
 def createUser():
@@ -16,6 +19,8 @@ def createUser():
         "password": request.json['password'],
     })
     return jsonify(str(id.inserted_id))
+
+
 @app.route('/users', methods=['GET'])
 def getUsers():
     users = []
@@ -23,19 +28,46 @@ def getUsers():
         users.append({
             '_id': str(ObjectId(doc['_id'])),
             'name': doc['name'],
+            'email': doc['email'],
             'password': doc['password']
         })
     return jsonify(users)
-@app.route('/users/<id>', methods=['GET'])
-def getOneUser():
-    return 'received'
-@app.route('/users/<id>', methods=['DELETE'])
-def deleteOneUser():
-    return 'received'
-@app.route('/users/<id>', methods=['PUT'])
-def updateOneUser():
-    return 'received'
+
+
+@app.route('/user/<id>', methods=['GET'])
+def getOneUser(id):
+    doc = db.find_one({'_id': ObjectId(id)})
+    return jsonify({
+        '_id': str(ObjectId(doc['_id'])),
+        'name': doc['name'],
+        'email': doc['email'],
+        'password': doc['password']
+    })
+
+
+@app.route('/user/<id>', methods=['DELETE'])
+def deleteOneUser(id):
+    db.delete_one({'_id': ObjectId(id)})
+
+    return jsonify({'msg': 'User deleted'})
+
+
+@app.route('/user/<id>', methods=['PUT'])
+def updateOneUser(id):
+    print(id)
+    print(request.json)
+    db.update_one(
+        {'_id': ObjectId(id)},
+        {'$set': {
+            'name': request.json['name'],
+            'email': request.json['email'],
+            'password': request.json['password'],
+        }}
+    )
+    return jsonify({'msg': 'User updated'})
+
 
 # Inicializamos el packete
 if __name__ == '__main__':
-    app.run(debug=True) # pasandole debug a true cada vez que hagamos un cambio en el código se va a volver a ejecutar
+    # pasandole debug a true cada vez que hagamos un cambio en el código se va a volver a ejecutar
+    app.run(debug=True)

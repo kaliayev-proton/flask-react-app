@@ -1,6 +1,6 @@
 # Flask React CRUD
 
-## Getting started
+## Setting up server environment
 
 1. Create virtual environment in server
    - Install virtual env: `pip install virtualenv`
@@ -12,3 +12,8 @@
 4. Install local mongodb server and execute: `mongod`
 
 5. Execute our app: `python src/app.py`
+
+## Getting started the server
+
+1. Activate the virtual environment: `.\venv\Scripts\activate.bat`
+2. Execute our app: `python src/app.py`
